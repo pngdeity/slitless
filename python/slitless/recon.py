@@ -2,6 +2,7 @@ import torch, copy, glob, time, datetime, pickle, os, eispac
 import numpy as np
 import matplotlib.pyplot as plt
 from torch import optim
+from slitless.config import config
 from slitless.forward import (Source, Imager, forward_op_torch, forward_op, 
     forward_op_tomo_3d, forward_op_tomo_3d_transpose, add_noise, gauss_pix,
     datacube_generator, tomomtx_gen)
@@ -404,7 +405,7 @@ def smart_fit_spectra_joblib(cube, tmplt, wave, errs=None, n_jobs=-1, component=
     rest_wave = p_base[idx_cent]['value'] 
     
     # Calculate absolute velocity to bypass eispac's orbital thermal drift correction
-    velocity = 299792.458 * (raw_cent - rest_wave) / rest_wave
+    velocity = config.speed_of_light * (raw_cent - rest_wave) / rest_wave
 
     bad_mask = (full_status <= 0)
     intensity[bad_mask] = 0
@@ -566,12 +567,12 @@ def smart(
     
     if fitter=='mpfit':
         if tmplt is None:
-            template_filepath = '/home/kamo/resources/slitless/data/eis_data/templates/fe_12_195_119.2c.template.h5'
+            template_filepath = str(config.template_path)
             tmplt = eispac.read_template(template_filepath)
         lamdim = cube.shape[0]
         
-        wave_cen = imager.mid_wavelength if imager is not None else 195.119
-        disp_scale = imager.dispersion_scale if imager is not None else 0.022275
+        wave_cen = imager.mid_wavelength if imager is not None else config.mid_wavelength
+        disp_scale = imager.dispersion_scale if imager is not None else config.dispersion_scale
         
         # Construct the wavelength grid assuming pixel units center around lamdim//2
         wave = wave_cen + disp_scale * (np.arange(lamdim) - lamdim // 2)
@@ -580,7 +581,7 @@ def smart(
         recon = smart_fit_spectra_joblib(cube, tmplt, wave=wave, n_jobs=n_jobs)
         
         # convert physical units (km/s, Angstroms) back to pixel units to match original format
-        SPEED_OF_LIGHT = 299792.458
+        SPEED_OF_LIGHT = config.speed_of_light
         recon[0] /= imager.intenscale
         rest_wave = tmplt.parinfo[1]['value']
         actual_wave = rest_wave * (1 + recon[1] / SPEED_OF_LIGHT)
@@ -612,8 +613,8 @@ def prior_solver(
         mid_wave = imager.mid_wavelength
         disp_scale = imager.dispersion_scale
     else:
-        mid_wave = 195.119
-        disp_scale = 0.022275
+        mid_wave = config.mid_wavelength
+        disp_scale = config.dispersion_scale
         
     vel1_pix_0 = (cent1 - mid_wave) / disp_scale
     wid1_pix_0 = wid1 / disp_scale
@@ -652,7 +653,7 @@ def smart2(
     L = 21
 
     if tmplt is None and fitter == 'mpfit':
-        template_filepath = '/home/kamo/resources/slitless/data/eis_data/templates/fe_12_195_119.2c.template.h5'
+        template_filepath = str(config.template_path)
         import os
         if os.path.exists(template_filepath):
             import eispac
@@ -671,8 +672,8 @@ def smart2(
         mid_wave = imager.mid_wavelength
         disp_scale = imager.dispersion_scale
     else:
-        mid_wave = 195.119
-        disp_scale = 0.022275
+        mid_wave = config.mid_wavelength
+        disp_scale = config.dispersion_scale
         
     vel1_pix_0 = (cent1 - mid_wave) / disp_scale
     wid1_pix_0 = wid1 / disp_scale
@@ -773,15 +774,15 @@ def smart2(
         print(f'chi:{np.mean(chi)}')
         
     if fitter=='mpfit':
-        wave_cen = imager.mid_wavelength if imager is not None else 195.119
-        disp_scale = imager.dispersion_scale if imager is not None else 0.022275
+        wave_cen = imager.mid_wavelength if imager is not None else config.mid_wavelength
+        disp_scale = imager.dispersion_scale if imager is not None else config.dispersion_scale
         wave = wave_cen + disp_scale * (np.arange(L) - L // 2)
         cube = cube / disp_scale * imager.intenscale
         
         recon = smart_fit_spectra_joblib(cube, tmplt, wave=wave, n_jobs=n_jobs)
         
         # convert physical units (km/s, Angstroms) back to pixel units to match original format
-        SPEED_OF_LIGHT = 299792.458
+        SPEED_OF_LIGHT = config.speed_of_light
         recon[0] /= imager.intenscale
         rest_wave = tmplt.parinfo[1]['value']
         actual_wave = rest_wave * (1 + recon[1] / SPEED_OF_LIGHT)
@@ -838,7 +839,7 @@ def smart2_twostage(
         disp_scale = imager.dispersion_scale
         int0 = imager.meas3dar[0].copy()
     else:
-        disp_scale = 0.022275
+        disp_scale = config.dispersion_scale
         int0 = np.zeros((64, 64))
 
     L = 21
@@ -899,13 +900,13 @@ def grad_descent_solver(
     xh_int = xh_int.requires_grad_()
     
     if imager is not None:
-        rest_wave = imager.srpix.rest_wavelength if hasattr(imager, 'srpix') else 195.117937907451
+        rest_wave = imager.srpix.rest_wavelength if hasattr(imager, 'srpix') else config.wavelength
         mid_wave = imager.mid_wavelength
         disp_scale = imager.dispersion_scale
     else:
-        rest_wave = 195.117937907451
-        mid_wave = 195.119
-        disp_scale = 0.022275
+        rest_wave = config.wavelength
+        mid_wave = config.mid_wavelength
+        disp_scale = config.dispersion_scale
         
     vel_pix_0 = (rest_wave - mid_wave) / disp_scale
     width_pix_0 = 0.02888811 / disp_scale
@@ -964,7 +965,7 @@ def nn_solver(
         imager=None,
         model_path='2023_01_19__17_18_44_NF_64_BS_4_LR_0.0002_EP_200_KSIZE_(3, 1)_MSE_LOSS_ADAM_all_dbsnr_35_dssize_full'
 ):
-    foldpath = glob.glob('/home/kamo/resources/slitless/python/results/saved/'+'*'+model_path+'*')[0]+'/'
+    foldpath = glob.glob(str(config.model_dir)+'/'+'*'+model_path+'*')[0]+'/'
     net = net_loader(foldpath)
     net.eval()
     recon = predict(net, imager.meas3dar.copy())
@@ -1006,13 +1007,13 @@ def scipy_solver(
     int0 = meas[0].copy()
     
     if imager is not None:
-        rest_wave = imager.srpix.rest_wavelength if hasattr(imager, 'srpix') else 195.117937907451
+        rest_wave = imager.srpix.rest_wavelength if hasattr(imager, 'srpix') else config.wavelength
         mid_wave = imager.mid_wavelength
         disp_scale = imager.dispersion_scale
     else:
-        rest_wave = 195.117937907451
-        mid_wave = 195.119
-        disp_scale = 0.022275
+        rest_wave = config.wavelength
+        mid_wave = config.mid_wavelength
+        disp_scale = config.dispersion_scale
         
     vel_pix_0 = (rest_wave - mid_wave) / disp_scale
     width_pix_0 = 0.02888811 / disp_scale
@@ -1090,13 +1091,13 @@ def scipy_solver_parallel(
     int0 = meas[0].copy()
 
     if imager is not None:
-        rest_wave = imager.srpix.rest_wavelength if hasattr(imager, 'srpix') else 195.117937907451
+        rest_wave = imager.srpix.rest_wavelength if hasattr(imager, 'srpix') else config.wavelength
         mid_wave = imager.mid_wavelength
         disp_scale = imager.dispersion_scale
     else:
-        rest_wave = 195.117937907451
-        mid_wave = 195.119
-        disp_scale = 0.022275
+        rest_wave = config.wavelength
+        mid_wave = config.mid_wavelength
+        disp_scale = config.dispersion_scale
         
     vel_pix_0 = (rest_wave - mid_wave) / disp_scale
     width_pix_0 = 0.02888811 / disp_scale
@@ -1197,9 +1198,9 @@ def scipy_solver_parallel2(
         mask = np.ones_like(meas[0])
     aa, bb = meas[0].shape
 
-    rest_wave = imager.srpix.rest_wavelength if hasattr(imager, 'srpix') else 195.117937907451
-    mid_wave = imager.mid_wavelength if imager is not None else 195.119
-    disp_scale = imager.dispersion_scale if imager is not None else 0.022275
+    rest_wave = imager.srpix.rest_wavelength if hasattr(imager, 'srpix') else config.wavelength
+    mid_wave = imager.mid_wavelength if imager is not None else config.mid_wavelength
+    disp_scale = imager.dispersion_scale if imager is not None else config.dispersion_scale
     
     if bg_shape_norm is None:
         # Fallback to a flat continuum if no optimal shape is provided
@@ -1274,7 +1275,7 @@ def diffusion_solver(
     ).to(device)
     # data = torch.load('/home/kamo/resources/denoising-diffusion-pytorch/results/model-10.pt', map_location=device, weights_only=True)
     # data = torch.load('/home/kamo/resources/denoising-diffusion-pytorch/results_lr_5e-6/'+model_path, map_location=device, weights_only=True)
-    data = torch.load('/home/kamo/resources/denoising-diffusion-pytorch/results/'+model_path, map_location=device, weights_only=True)
+    data = torch.load(str(config.diffusion_model_dir)+'/'+model_path, map_location=device, weights_only=True)
     adapted_dict = {k[6:]: v for k, v in data['model'].items() if k.startswith('model.')}
     model.load_state_dict(adapted_dict)
     model.eval()

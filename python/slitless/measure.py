@@ -1,9 +1,42 @@
 from skimage.metrics import structural_similarity as skimage_ssim
-from mas.decorators import _vectorize
 from slitless.forward import forward_op_torch
 import numpy as np
 import torch
 import torch.nn as nn
+
+def _vectorize(signature=None, included=None):
+    """Decorator for batched execution over leading dimensions.
+
+    Extracts known keyword args (via `included` list), determines the
+    leading batch shape from them, slices each array by that shape,
+    calls func on each set of 2D slices, and stacks scalar results.
+    """
+    def decorator(func):
+        import functools
+
+        @functools.wraps(func)
+        def wrapper(**kwargs):
+            arrays = [kwargs[k] for k in included]
+            if all(a is None for a in arrays):
+                return func(**kwargs)
+            prototype = next(a for a in arrays if a is not None)
+            if prototype.ndim <= 2:
+                return func(**kwargs)
+            batch_shape = prototype.shape[:-2]
+            total = int(np.prod(batch_shape))
+            results = []
+            for idx in np.ndindex(batch_shape):
+                sliced = dict(kwargs)
+                for k in included:
+                    a = sliced[k]
+                    sliced[k] = a[idx] if a.ndim > 2 else a
+                results.append(func(**sliced))
+            if total == 0:
+                return np.array([])
+            result_arr = np.array(results)
+            return result_arr.reshape(batch_shape)
+        return wrapper
+    return decorator
 
 @_vectorize(signature='(a,b),(a,b)->()', included=['truth', 'estimate'])
 def compare_ssim(*, truth, estimate):

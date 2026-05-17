@@ -6,6 +6,7 @@ import torch, glob, os
 from slitless.measure import compare_ssim, nrmse
 from slitless.networks.unet import UNet
 from torch.utils.data import DataLoader
+from slitless.config import config
 from slitless.data_loader import (BasicDataset, param_inv_transform, 
     meas_inv_transform, param_transform, meas_transform)
 from slitless.plotting import barplot_group
@@ -492,7 +493,7 @@ if __name__ == '__main__':
     net = net_loader(foldpath)
     dsetname='eistest64'
     # dataset_path = glob.glob(f'../../data/eis_data/{dsetname}/')[0]
-    dataset_path = glob.glob('../../data/eis_data/datasets/dset_v4/data/')[0]
+    dataset_path = str(config.train_data_dir.parent.parent / 'dset_v4' / 'data')
     valset = BasicDataset(data_dir=dataset_path, transform=meas_transform, target_transform=param_transform, fold='val', dbsnr=None, noise_model=None, numdetectors=3)
     dataloader = DataLoader(valset, batch_size=32, shuffle=False, num_workers=8)
 

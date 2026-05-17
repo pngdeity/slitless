@@ -6,11 +6,11 @@ import matplotlib.pyplot as plt
 from skimage.transform import resize
 from skimage.data import camera, shepp_logan_phantom, cell
 from scipy.optimize import minimize
-from mas.decorators import _vectorize
 from scipy.stats import poisson
 from scipy.ndimage import convolve1d
+from slitless.config import config
 
-SPEED_OF_LIGHT = 299792.458
+SPEED_OF_LIGHT = config.speed_of_light
 
 def gauss(x, mean, sigma):
     return 1 / sigma / (2*np.pi)**0.5 * np.exp(-0.5*((x-mean)/sigma)**2)

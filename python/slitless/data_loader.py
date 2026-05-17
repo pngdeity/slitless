@@ -4,12 +4,13 @@ from os.path import splitext
 
 import numpy as np
 import torch, time
+from slitless.config import config
 from slitless.forward import add_noise, forward_op, forward_op_torch
 from PIL import Image
 from torch.utils.data import Dataset, DataLoader
 from multiprocessing import Pool
 
-stats = np.load('/home/kamo/resources/slitless/data/eis_data/datasets/dset_v5/norm_stats.npy', allow_pickle=True).item()
+stats = np.load(str(config.norm_stats_path), allow_pickle=True).item()
 WAVELENGTH = 195.117937907451
 SPEEDOFLIGHT = 299792.458
 

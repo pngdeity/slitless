@@ -9,6 +9,7 @@ import eispac.core.fitting_functions as fit_fns
 from eispac.core.scale_guess import scale_guess
 from eispac.instr import calc_velocity
 from scipy.interpolate import interp1d
+from slitless.config import config
 from slitless.forward import Source, forward_op_tomo_3d
 import matplotlib.pyplot as plt
 from eispac.core.eiscube import EISCube
@@ -500,7 +501,7 @@ def quickplot6(meas, param3d, show=False):
     return fig, ax
 
 def example_figurer(
-    pathdir='/home/kamo/resources/slitless/data/eis_data/datasets/dset_v4/',
+    pathdir=str(config.data_root / 'eis_data' / 'datasets' / 'dset_v4'),
     fold='train'
 ):
     files = glob.glob(os.path.join(pathdir, 'data', fold, 'data*.npy'))
@@ -524,7 +525,7 @@ def example_figurer(
 
 def small_train_generator(
     inds, 
-    pathdir='/home/kamo/resources/slitless/data/eis_data/datasets/dset_v4/smallset/train/',
+    pathdir=str(config.data_root / 'eis_data' / 'datasets' / 'dset_v4' / 'smallset' / 'train'),
 ):
     param3d_l, meas_l, meas2_l, cube_l = [], [], [], []
     for i in inds:
@@ -544,7 +545,7 @@ def small_train_generator(
 
 def small_test_generator(
     inds, 
-    pathdir='/home/kamo/resources/slitless/data/eis_data/datasets/dset_v4/smallset/test/',
+    pathdir=str(config.data_root / 'eis_data' / 'datasets' / 'dset_v4' / 'smallset' / 'test'),
 ):
     param3d_l, meas_l, meas2_l = [], [], []
     for i in inds:

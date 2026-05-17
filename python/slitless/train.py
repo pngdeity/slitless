@@ -7,6 +7,7 @@ import torch.nn.functional as F
 from tqdm import tqdm
 import datetime
 
+from slitless.config import config
 from slitless.data_loader import (BasicDataset, OntheflyDataset,
     meas_inv_transform, meas_transform, param_transform)
 from slitless.networks.unet import UNet
@@ -127,32 +128,32 @@ def train_net(net,
 
 if __name__ == '__main__':
     # ---------
-    numdetectors = 3
+    numdetectors = config.numdetectors
     NUM_FILT = 64
     numlayers = 4
-    LR = 2e-4
+    LR = config.learning_rate
     # LR= 0.01
     EPOCHS = 100
-    BATCH_SIZE = 4
-    BILINEAR = True
+    BATCH_SIZE = config.batch_size
+    BILINEAR = config.bilinear
     ksizes = [(3,1)]
-    OPTIMIZER = 'ADAM'
+    OPTIMIZER = config.optimizer_type.upper()
     # LOSS = 'MSE'
     LOSS = 'NMSE'
     CYC_LOSS = False
     cyc_lam = 1
     CYC_ONLY = False
     LOSS = 'CYCLE_ONLY' if CYC_ONLY else LOSS
-    OUTCH = 'all'
+    OUTCH = config.outch_type
     out_channels = 3 if OUTCH=='all' else 1
     LOAD = True
     otf = None # on the fly trainset generation 
     loaded_model_path = '../results/saved/2026_05_11__17_26_39_NF_64_BS_4_LR_0.0002_EP_400_KSIZE_(3, 1)_NMSE_LOSS_ADAM_all_dbsnr_100_None_K_3_eis_v5/best_model.pth'
     # dataset_path = glob.glob('../../data/datasets/dset8_imagenet_50000/')[0]
-    dataset_path = glob.glob('../../data/eis_data/datasets/dset_v5/data/')[0]
-    testset_path = glob.glob('../../data/eis_data/datasets/dset_v5/data/')[0]
+    dataset_path = str(config.train_data_dir)
+    testset_path = str(config.train_data_dir)
     dbsnr = 30
-    noise_model = 'poisson'
+    noise_model = config.noise_model
     # noise_model = None
 
     now = datetime.datetime.now().strftime('%Y_%m_%d__%H_%M_%S')
