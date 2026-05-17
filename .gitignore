@@ -23,6 +23,7 @@
 *.egg
 dist/
 build/
-.env
-.env.*
-.envrc
+
+
+# APM dependencies
+apm_modules/
