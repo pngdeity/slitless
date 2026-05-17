@@ -59,10 +59,14 @@ class SlitlessConfig:
 
     # --- Normalization ---
     intensity_scale: float = 6000.0             # 99.9th percentile
-    velocity_mean: float = 0.0                  # from norm_stats.npy (default)
-    velocity_std: float = 1.0                   # from norm_stats.npy (default)
-    linewidth_mean: float = 0.0                 # from norm_stats.npy (default)
-    linewidth_std: float = 1.0                  # from norm_stats.npy (default)
+    # NOTE: velocity/linewidth normalization stats (mean, std) are loaded at
+    # runtime from norm_stats.npy via data_loader._get_stats(). Typical values:
+    #   velocity_mean ≈ 0.0, velocity_std ≈ 2.0 (pixels)
+    #   linewidth_mean ≈ 0.0, linewidth_std ≈ 2.0 (pixels)
+
+    # --- Dataset ---
+    lamdim: int = 64          # Wavelength dimension (spectral pixels)
+    patch_size: int = 64      # Spatial crop size for dataset generation
 
     # --- Training ---
     numdetectors: int = 3

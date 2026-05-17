@@ -10,27 +10,43 @@ from PIL import Image
 from torch.utils.data import Dataset, DataLoader
 from multiprocessing import Pool
 
-stats = np.load(str(config.norm_stats_path), allow_pickle=True).item()
-WAVELENGTH = 195.117937907451
-SPEEDOFLIGHT = 299792.458
+WAVELENGTH = config.wavelength
+SPEEDOFLIGHT = config.speed_of_light
 
-def meas_transform(meas, stats=stats):
-    return meas/6000
-    # return meas/stats['int_max']
-def meas_inv_transform(meas, stats=stats):
-    return meas*6000
-    # return meas*stats['int_max']
-def param_transform(params, stats=stats):
-    params[0] /= 6000
+_stats_cache = None
+
+def _get_stats():
+    global _stats_cache
+    if _stats_cache is None:
+        _stats_cache = np.load(str(config.norm_stats_path), allow_pickle=True).item()
+    return _stats_cache
+
+def meas_transform(meas, stats=None):
+    if stats is None:
+        stats = _get_stats()
+    return meas / config.intensity_scale
+
+def meas_inv_transform(meas, stats=None):
+    if stats is None:
+        stats = _get_stats()
+    return meas * config.intensity_scale
+
+def param_transform(params, stats=None):
+    if stats is None:
+        stats = _get_stats()
+    params[0] /= config.intensity_scale
     params[1] = (params[1] - stats['vel_mean']) / stats['vel_std']
     params[2] = (params[2] - stats['width_mean']) / stats['width_std']
     return params
-def param_inv_transform(params, w_kms=False, stats=stats):
-    params[...,0,:,:] *= 6000
+
+def param_inv_transform(params, w_kms=False, stats=None):
+    if stats is None:
+        stats = _get_stats()
+    params[...,0,:,:] *= config.intensity_scale
     params[...,1,:,:] = stats['vel_std'] * params[...,1,:,:] + stats['vel_mean']
     params[...,2,:,:] = stats['width_std'] * params[...,2,:,:] + stats['width_mean']
-    if w_kms: # conversion from A to km/s
-        params[...,2,:,:] *= SPEEDOFLIGHT/WAVELENGTH
+    if w_kms:
+        params[...,2,:,:] *= SPEEDOFLIGHT / WAVELENGTH
     return params
 
 class BasicDataset(Dataset):

@@ -1,8 +1,10 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from slitless.forward import (forward_op_tomo_3d, forward_op_tomo_3d_v0, forward_op_tomo_3d_k3,
-forward_op_tomo_3d_transpose_k3, forward_op_tomo_3d_transpose, datacube_generator, tomomtx_gen,
+from slitless.forward import (forward_op_tomo_3d,
+forward_op_tomo_3d_transpose, datacube_generator, tomomtx_gen,
 gauss_pix)
+from slitless.forward_legacy import (forward_op_tomo_3d_v0, forward_op_tomo_3d_k3,
+forward_op_tomo_3d_transpose_k3)
 from slitless.recon import tomoinv, tomoinv0, gauss_pmf_fitter2
 from scipy.optimize import curve_fit
 
