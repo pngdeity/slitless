@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
 import seaborn as sns
-import torch, glob, os
+import torch, glob, os, json
 from slitless.measure import compare_ssim, nrmse
 from slitless.common import outch_adjuster
 from slitless.networks.unet import UNet
@@ -25,19 +25,33 @@ def predict(net, meas):
     return pred
 
 def net_loader(path):
-    modpath = path+'/best_model.pth'
+    modpath = path + '/best_model.pth'
+    json_path = os.path.join(path, 'checkpoint_metadata.json')
 
-    with open(path+'/summary.txt', 'r') as summary_text:
-        lines = summary_text.readlines()
-    parser = lambda key: [i for i in lines if key in i][0].split('= ')[-1].split(' \n')[0]
-    start_filters = int(parser('Number of starting'))
-    in_channels = int(parser('Number of Detectors'))
-    outch = parser('Output Channels')
-    out_channels = 3 if outch=='all' else 1
-    ksizes=eval(parser('Kernel Size'))
-    bilinear=eval(parser('Bilinear Interpolation'))
-    numlayers = len(ksizes)
-    numlayers = 4 if numlayers==1 else numlayers
+    if os.path.exists(json_path):
+        with open(json_path) as f:
+            meta = json.load(f)
+        start_filters = meta['num_filters']
+        in_channels = meta['numdetectors']
+        outch = meta['outch_type']
+        out_channels = 3 if outch == 'all' else 1
+        ksizes = meta['ksizes']
+        bilinear = meta['bilinear']
+        numlayers = len(ksizes)
+        numlayers = 4 if numlayers == 1 else numlayers
+    else:
+        with open(path + '/summary.txt', 'r') as summary_text:
+            lines = summary_text.readlines()
+        parser = lambda key: [i for i in lines if key in i][0].split('= ')[-1].split(' \n')[0]
+        start_filters = int(parser('Number of starting'))
+        in_channels = int(parser('Number of Detectors'))
+        outch = parser('Output Channels')
+        out_channels = 3 if outch == 'all' else 1
+        ksizes = eval(parser('Kernel Size'))
+        bilinear = eval(parser('Bilinear Interpolation'))
+        numlayers = len(ksizes)
+        numlayers = 4 if numlayers == 1 else numlayers
+
     net = UNet(
         in_channels=in_channels,
         out_channels=out_channels,

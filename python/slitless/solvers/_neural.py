@@ -3,7 +3,6 @@
 import glob
 import torch
 import numpy as np
-from denoising_diffusion_pytorch import Unet, GaussianDiffusion
 
 from slitless.config import config
 from slitless.forward import forward_op_torch
@@ -31,6 +30,8 @@ def diffusion_solver(
     grad_scale=[1, 1, 1],
     num_samples=5,
 ):
+    from denoising_diffusion_pytorch import Unet, GaussianDiffusion
+
     meas = imager.meas3dar.copy()
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 

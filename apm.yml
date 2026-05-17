@@ -1,0 +1,12 @@
+name: slitless
+version: 1.0.0
+description: APM project for slitless
+author: pngdeity
+targets:
+- opencode
+dependencies:
+  apm:
+  - /home/nathan/repos/pngdeity/apm-user-repository/packages/ai-agent-orchestration
+  mcp: []
+includes: auto
+scripts: {}

@@ -1,3 +1,4 @@
+import json
 import torch
 import sys, os, logging, time, glob
 import torch.nn as nn
@@ -422,6 +423,42 @@ if __name__ == '__main__':
         '\n############## Comments ############## \n'
     ]
 
+    # summary.txt kept for backward compat - prefer checkpoint_metadata.json
     with open(f'../results/saved/{name}/summary.txt', 'w') as file:
         for line in training_summary:
             file.write(line)
+
+    _modnum = 5 if otf is not None else 1
+    best_epoch = int((np.argmin(valloss) + 1) * _modnum)
+    test_ssim = {}
+    if net.outch_type == 'all':
+        test_ssim = {k: round(float(v), 6) for k, v in
+                     zip(['intensity', 'velocity', 'linewidth'], ssims.mean(axis=0))}
+    else:
+        test_ssim = {net.outch_type: round(float(ssims.mean()), 6)}
+    metadata = {
+        'version': '2.0.0',
+        'checkpoint_name': name,
+        'architecture': 'unet',
+        'numdetectors': numdetectors,
+        'num_filters': NUM_FILT,
+        'bilinear': BILINEAR,
+        'ksizes': ksizes,
+        'outch_type': OUTCH,
+        'noise_model': noise_model,
+        'dbsnr': dbsnr,
+        'training': {
+            'epochs': EPOCHS,
+            'batch_size': BATCH_SIZE,
+            'learning_rate': LR,
+            'optimizer': OPTIMIZER,
+            'loss': LOSS,
+        },
+        'metrics': {
+            'best_epoch': best_epoch,
+            'best_val_loss': round(float(np.min(valloss)), 7),
+            'test_ssim': test_ssim,
+        },
+    }
+    with open(f'../results/saved/{name}/checkpoint_metadata.json', 'w') as f:
+        json.dump(metadata, f, indent=2)

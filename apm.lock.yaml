@@ -1,0 +1,10 @@
+lockfile_version: '1'
+generated_at: '2026-05-17T03:15:44.756288+00:00'
+apm_version: 0.13.0
+dependencies:
+- repo_url: _local/ai-agent-orchestration
+  package_type: apm_package
+  deployed_files:
+  - .agents/skills/ai-agent-orchestration
+  source: local
+  local_path: /home/nathan/repos/pngdeity/apm-user-repository/packages/ai-agent-orchestration
