@@ -1273,8 +1273,6 @@ def diffusion_solver(
         dim_mults = (1, 2, 4, 8),
         flash_attn = True
     ).to(device)
-    # data = torch.load('/home/kamo/resources/denoising-diffusion-pytorch/results/model-10.pt', map_location=device, weights_only=True)
-    # data = torch.load('/home/kamo/resources/denoising-diffusion-pytorch/results_lr_5e-6/'+model_path, map_location=device, weights_only=True)
     data = torch.load(str(config.diffusion_model_dir)+'/'+model_path, map_location=device, weights_only=True)
     adapted_dict = {k[6:]: v for k, v in data['model'].items() if k.startswith('model.')}
     model.load_state_dict(adapted_dict)
@@ -1313,11 +1311,6 @@ def diffusion_solver(
 ''' Encapsulated the *comparison_testbed_multi.py* into a function. '''
 def comparison_test_multi(path_data, data, savepath, single_param4dar=False, save=False, numdetectors=3, dbsnr=50, 
                           noise_model='poisson', solver='scipy', **kwargs):
-    # path_data = '/home/kamo/resources/slitless/data/datasets/baseline/'
-    # data='apj19_20x20.npy' # 20x20 APJ2019 image
-    # data='eis_5_64x64.npy' # 64x64 EIS images
-    # data = 'eis_train_5_64x64.npy' # 5 of 64x64 EIS dataset train images
-    
     if single_param4dar:
         param4dar = np.load(path_data+data)[[0]]
     else:
@@ -1325,13 +1318,7 @@ def comparison_test_multi(path_data, data, savepath, single_param4dar=False, sav
     if len(param4dar.shape)<4:
         param4dar = param4dar[np.newaxis]
 
-    # savepath = '/home/kamo/resources/slitless/python/results/recons/'
-    # save = False
     M = param4dar.shape[-1]
-    # numdetectors = 3
-    # dbsnr = 50
-    # noise_model='poisson'
-    # noise_model='gaussian'
 
     def inf_priorer(param4dar):
         means = []

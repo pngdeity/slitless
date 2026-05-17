@@ -341,35 +341,6 @@ if __name__ == '__main__':
     np.save(savedir+'ssims_l.npy', ssims_l)
     np.save(savedir+'rmses_l.npy', rmses_l)
 
-    ######### Flower Dataset Evals ##########
-    # testset = BasicDataset(data_dir=dataset_path, fold='test', dbsnr=dbsnr)
-    # testloader = DataLoader(testset, batch_size=32, shuffle=True, num_workers=8)
-
-    # os.mkdir(f'../results/saved/{name}/test_results_flower')
-    # savedir = f'../results/saved/{name}/test_results_flower/'
-    # _ = plot_val_stats(net, testloader, savedir)
-    # plot_recons(net, testloader, numim=32, savedir=savedir+'figures/')
-    # ssims_lt, rmses_lt = eval_snrlist(dbsnr_list=dbsnr_l, fold='test', 
-    # data_dir=dataset_path, net=net)
-    # barplot_group(ssims_lt.mean(axis=1).swapaxes(0,1), 
-    #     labels_gr=['int','vel','width'], labels_mem=[str(jj) for jj in dbsnr_l], 
-    #     ylabel='SSIM', title='SSIM vs dBsnr', savedir=savedir+'snr_barplot.png')
-    # np.save(savedir+'ssims_l.npy', ssims_lt)
-    # np.save(savedir+'rmses_l.npy', rmses_lt)
-
-    # os.mkdir(f'../results/saved/{name}/train_results')
-    # savedir = f'../results/saved/{name}/train_results/'
-    # _ = plot_val_stats(net, trainloader, savedir)
-    # plot_recons(net, trainloader, numim=32, savedir=savedir+'figures/')
-    # ssims_l, rmses_l = eval_snrlist(dbsnr_list=dbsnr_l, fold='val', 
-    # data_dir=dataset_path, net=net)
-    # barplot_group(ssims_l.mean(axis=1).swapaxes(0,1), 
-    #     labels_gr=['int','vel','width'], labels_mem=[str(jj) for jj in dbsnr_l], 
-    #     ylabel='SSIM', title='SSIM vs dBsnr', savedir=savedir+'snr_barplot.png')
-    # np.save(savedir+'ssims_l.npy', ssims_l)
-    # np.save(savedir+'rmses_l.npy', rmses_l)
-    ##########################################
-
     training_summary += [
     '\n############## Train-Oracle Constant Estimates ############## \n',
     'SSIM Train: i:{:.3f}   v:{:.3f}    w:{:.3f} \n'.format(ssim_cnst_train[0], 

@@ -117,23 +117,6 @@ def tomomtx_gen(shape, orders=[0,-1,1]):
             mtx.append(np.array(mtx_i))
     return np.concatenate(mtx, axis=0)
 
-def forward_op_tomo_2d_old(datacube):
-    # axis 0 is lambda (index up -> lambda up), axis 1 is dispersion direction
-    M,M = datacube.shape
-    dc_p = np.pad(datacube, ((0,0), (0,M-1)))
-    dc_m = np.pad(datacube, ((0,0), (M-1,0)))
-    for i in range(M):
-        dc_p[i] = np.roll(dc_p[i], i)
-        dc_m[i] = np.roll(dc_m[i], -i)
-    # return dc_p, dc_m
-    
-    i_lam = M // 2
-
-    dc_0 = np.sum(datacube, axis=0)
-    dc_m = np.sum(dc_m, axis=0)[-i_lam-M:-i_lam]
-    dc_p = np.sum(dc_p, axis=0)[i_lam:i_lam+M]
-    return np.stack((dc_0, dc_m, dc_p), axis=0)
-
 def forward_op_tomo_2d(datacube):
     # axis 0 is lambda (index up -> lambda up), axis 1 is dispersion direction
     M,M = datacube.shape
@@ -150,6 +133,7 @@ def forward_op_tomo_2d(datacube):
     dc_p = np.sum(dc_p, axis=0)[:M]
     return np.stack((dc_0, dc_m, dc_p), axis=0)
 
+# DEPRECATED: use forward_op_tomo_3d instead (still imported by scripts/)
 def forward_op_tomo_3d_k3(dc, inf=False):
     # axis 0 is lambda (index up -> lambda up), axis 1 is dispersion direction
     M,M,N = dc.shape
@@ -172,6 +156,7 @@ def forward_op_tomo_3d_k3(dc, inf=False):
 
 interp2d = np.vectorize(np.interp, signature='(m),(n),(n)->(m)')
 
+# DEPRECATED: use forward_op_tomo_3d instead (still imported by scripts/)
 def forward_op_tomo_3d_v0(dc, orders=[0,-1,1], inf=False):
     # axis 0 is lambda (index up -> lambda up), axis 1 is dispersion direction
     M,M,N = dc.shape
@@ -251,52 +236,6 @@ def forward_op_tomo_3d(dc, orders=[0,-1,1], inf=False):
     else:
         return np.array(projs)
 
-def forward_op_tomo_3d_old(dc, orders=[0,-1,1], inf=False):
-    # axis 0 is lambda (index up -> lambda up), axis 1 is dispersion direction
-    M,M,N = dc.shape
-    projs = []
-
-    dc_p = np.zeros((M,2*M-1,N))
-    dc_p[:,:M] = dc
-    dc_m = dc_p.copy()
-
-    M2 = M
-    dc_p2 = np.zeros((M2,M2+M-1,N))
-    dc_m2 = dc_p2.copy()
-
-    if 2 in np.abs(orders):
-
-        dc_p2[:,:M] = dc
-        dc_m2 = dc_p2.copy()
-
-        for i,r in enumerate(np.arange(M2)-M2//2):
-            if 2 in orders:
-                dc_p2[i] = np.roll(dc_p2[i], 2*r, axis=0)
-            if -2 in orders:
-                dc_m2[i] = np.roll(dc_m2[i], -2*r, axis=0)
-
-    for i,r in enumerate(np.arange(M)-M//2):
-        dc_p[i] = np.roll(dc_p[i], r, axis=0)
-        dc_m[i] = np.roll(dc_m[i], -r, axis=0)
-    # return dc_p, dc_m
-    
-    dc_0 = np.sum(dc, axis=0)
-    dc_m = np.sum(dc_m, axis=0)[:M]
-    dc_p = np.sum(dc_p, axis=0)[:M]
-    dc_m2 = np.sum(dc_m2, axis=0)[:M]
-    dc_p2 = np.sum(dc_p2, axis=0)[:M]
-
-    dcs = [dc_0, dc_m, dc_p, dc_m2, dc_p2]
-    ordlist = [0,-1,1,-2,2]
-    inds = np.where(ordlist==np.array(orders)[:,None])[1]
-
-    dcs2 = [dcs[ind] for ind in inds]
-    if inf is True:
-        dc_i = np.sum(dc, axis=1)
-        return np.stack(dcs2 + [dc_i], axis=0)
-    else:
-        return np.stack(dcs2, axis=0)
-
 def forward_op_tomo_2d_transpose(meas):
     # axis 0 is lambda (index up -> lambda up), axis 1 is dispersion direction
     _,M = meas.shape
@@ -313,6 +252,7 @@ def forward_op_tomo_2d_transpose(meas):
     
     return np.stack((datacube_0, datacube_m[:,:M], datacube_p[:,:M]), axis=0)
 
+# DEPRECATED: use forward_op_tomo_3d_transpose instead (still imported by scripts/)
 def forward_op_tomo_3d_transpose_k3(meas, inf=False, smart=True):
     # axis 0 is lambda (index up -> lambda up), axis 1 is dispersion direction
     _,M,N = meas.shape
@@ -376,15 +316,6 @@ def forward_op_tomo_3d_transpose(meas, orders=[0,-1,1], inf=False):
         return np.stack(dcs2 + [dc_i], axis=0)
     else:
         return np.stack(dcs2, axis=0)
-
-def forward_op_tomo_3d_loopy(datacube):
-    M,M,N = datacube.shape # (lambda,y,x)
-    y_p = np.zeros((M,N))
-    y_m = np.zeros((M,N))
-    y_0 = np.zeros((M,N))
-    for i in range(N):
-        y_0[:,i], y_m[:,i], y_p[:,i] = forward_op_tomo_2d(datacube[:,:,i])
-    return np.stack((y_0, y_m, y_p), axis=0)
 
 def forward_op_torch(
     true_intensity=None,
@@ -806,94 +737,4 @@ def add_noise(signal, dbsnr=None, max_count=None, avg_count=None, noise_model='G
     if type(signal)==torch.Tensor:
         out = torch.from_numpy(out).to(device=signal.device, dtype=signal.dtype)
 
-    return out
-
-def forward_op_loopy(
-    true_intensity=None,
-    true_doppler=None,
-    true_linewidth=None,
-    param3d=None,
-    spectral_orders=[0,-1,1]):
-    """
-    Given 2d arrays of intensity, doppler, and linewidth, calculate the noise
-    free measurements at the specified spectral orders.
-
-    Warning: This is an old an slow implementation. 
-
-    Args:
-        true_intensity (ndarray): 2d array of true intensities.
-        true_doppler (ndarray): 2d array of true doppler shifts in the units of
-            pixels.
-        true_linewidth (ndarray): 2d array of true line widths in the units of
-            pixels.
-        param3d (ndarray): 3d array of the 2d arrays of intensity, velocity, 
-            and line width. If provided, the 2d parameter inputs are ignored. 
-        spectral_orders (list): list of the spectral orders.
-
-    Returns:
-        measurements (ndarray): 3d array of measurements. The first dimension
-            contains the specified spectral orders with the same ordering.
-    """
-    if param3d is not None:
-        true_intensity, true_doppler, true_linewidth = param3d
-    aa, bb = true_intensity.shape
-    out = np.zeros((len(spectral_orders),)+(aa,bb))
-    # assume columns of detector are independent
-    for z,a in enumerate(spectral_orders):
-        if a == 0:
-            out[z] = true_intensity.copy()
-            continue
-        for col in range(bb):
-            for row in range(aa):
-                out[z,:,col] += true_intensity[row,col] * gauss(
-                    np.arange(aa)-row, a*true_doppler[row,col], abs(a)*true_linewidth[row,col]
-                    )
-    return out
-
-def forward_op_torch_loopy(
-    true_intensity=None,
-    true_doppler=None,
-    true_linewidth=None,
-    spectral_orders=[0,-1,1]):
-    """
-    Given 2d (or 3d where the first dimension is batch dim) arrays of intensity,
-    doppler, and linewidth, calculate the noise free measurements at the
-    specified spectral orders.
-
-    Warning: This is an old an slow implementation. 
-
-    Args:
-        true_intensity (Tensor): 2d or 3d array of true intensities.
-        true_doppler (Tensor): 2d or 3d array of true doppler shifts in the
-            units of pixels.
-        true_linewidth (Tensor): 2d or 3d array of true line widths in the units
-            of pixels.
-        spectral_orders (list): list of the spectral orders.
-
-    Returns:
-        measurements (Tensor): 4d array of measurements. The first dimension is
-        the batch dim, and the second dim contains the specified spectral orders
-        with the same ordering.
-    """
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    if len(true_intensity.shape) == 2:
-        true_intensity = true_intensity[None]
-        true_doppler = true_doppler[None]
-        true_linewidth = true_linewidth[None]
-    k, aa, bb = true_intensity.shape
-    out = torch.zeros((k,) + (len(spectral_orders),)+(aa,bb))
-    out = out.to(device=device, dtype=torch.float)
-    # assume columns of detector are independent
-    for z,a in enumerate(spectral_orders):
-        a = torch.Tensor([a]).to(device=device, dtype=torch.float)
-        if a == 0:
-            out[:,z] = true_intensity.clone()
-            continue
-        for col in range(bb):
-            for row in range(aa):
-                out[:,z,:,col] += true_intensity[:,[row],col] * gauss_torch(
-                    torch.arange(aa)[None].to(device=device, dtype=torch.float)-row, 
-                    a*true_doppler[:,[row],col], 
-                    torch.abs(a)*true_linewidth[:,[row],col]
-                    )
     return out

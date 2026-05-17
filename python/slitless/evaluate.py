@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import torch, glob, os
 from slitless.measure import compare_ssim, nrmse
+from slitless.common import outch_adjuster
 from slitless.networks.unet import UNet
 from torch.utils.data import DataLoader
 from slitless.config import config
@@ -134,14 +135,7 @@ def plot_recons(net, valloader, numim, savedir, denormalize=False):
     if not hasattr(net, 'outch_type'):
         net.outch_type = 'all'
 
-    if net.outch_type == 'int':
-        y1 = y[:,[0]]
-    elif net.outch_type == 'vel':
-        y1 = y[:,[1]]
-    elif net.outch_type == 'width':
-        y1 = y[:,[2]]
-    elif net.outch_type == 'all':
-        y1 = y
+    y1 = outch_adjuster(out=None, true_out=y, outch_type=net.outch_type, action='crop')
 
     ssims = compare_ssim(truth=y1, estimate=out)
     rmses = nrmse(truth=y1, estimate=out, normalization=None)
@@ -333,17 +327,9 @@ def plot_val_stats(net, valloader, savedir):
         if not hasattr(net, 'outch_type'):
             net.outch_type = 'all'
 
-        if net.outch_type == 'int':
-            y1 = true_outputs[:,[0]]
-            title_str = 'Intensity'
-        elif net.outch_type == 'vel':
-            y1 = true_outputs[:,[1]]
-            title_str = 'Velocity'
-        elif net.outch_type == 'width':
-            y1 = true_outputs[:,[2]]
-            title_str = 'Linewidth'
-        elif net.outch_type == 'all':
-            y1 = true_outputs
+        y1 = outch_adjuster(out=None, true_out=true_outputs, outch_type=net.outch_type, action='crop')
+        TITLE_MAP = {'int': 'Intensity', 'vel': 'Velocity', 'width': 'Linewidth'}
+        title_str = TITLE_MAP.get(net.outch_type, '')
 
         with torch.no_grad():
             outputs = net(inputs)
@@ -446,17 +432,7 @@ def eval_snrlist(dbsnr_list, noise_model, fold, data_dir, net):
             if not hasattr(net, 'outch_type'):
                 net.outch_type = 'all'
 
-            if net.outch_type == 'int':
-                y1 = true_outputs[:,[0]]
-                title_str = 'Intensity'
-            elif net.outch_type == 'vel':
-                y1 = true_outputs[:,[1]]
-                title_str = 'Velocity'
-            elif net.outch_type == 'width':
-                y1 = true_outputs[:,[2]]
-                title_str = 'Linewidth'
-            elif net.outch_type == 'all':
-                y1 = true_outputs
+            y1 = outch_adjuster(out=None, true_out=true_outputs, outch_type=net.outch_type, action='crop')
 
             with torch.no_grad():
                 outputs = net(inputs)
@@ -502,20 +478,3 @@ if __name__ == '__main__':
     #     os.mkdir(savedir)
 
     ssims, rmses, yvec, outvec = plot_val_stats(net, dataloader, savedir)
-    # plot_recons(net, dataloader, 32, savedir+'figures/')
-
-    # dbsnr_l = [15,25,35,None]
-
-    # ssims_l, rmses_l = eval_snrlist(dbsnr_list=dbsnr_l, fold=fold, 
-    # data_dir=dataset_path, net=net)
-
-    # barplot_group(ssims_l.mean(axis=1).swapaxes(0,1), 
-    #     labels_gr=['Intensity','Velocity','Linewidth'], labels_mem=[str(jj) for jj in dbsnr_l], 
-    #     ylabel='SSIM', title='SSIM vs dBsnr', savedir=savedir+'ssim_barplot.png')
-
-    # barplot_group(rmses_l.mean(axis=1).swapaxes(0,1), 
-    #     labels_gr=['Intensity','Velocity','Linewidth'], labels_mem=[str(jj) for jj in dbsnr_l], 
-    #     ylabel='RMSE', title='RMSE vs dBsnr', savedir=savedir+'rmse_barplot.png')
-
-    # np.save(savedir+'ssims_l.npy', ssims_l)
-    # np.save(savedir+'rmses_l.npy', rmses_l)

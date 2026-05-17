@@ -1,5 +1,6 @@
 from skimage.metrics import structural_similarity as skimage_ssim
 from slitless.forward import forward_op_torch
+from slitless.common import outch_adjuster
 import numpy as np
 import torch
 import torch.nn as nn
@@ -156,21 +157,8 @@ def combine_losses(
     """
     assert len(lam) == len(losses_param) + len(losses_meas), "wrong length for lam"
     def combined(**kwargs):
-        if outch_type == 'all':
-            truth = kwargs['truth']
-            out = kwargs['out']
-        elif outch_type == 'int':
-            truth = kwargs['truth'][:,[0]]
-            out = kwargs['truth'].clone()
-            out[:,[0]] = kwargs['out']
-        elif outch_type == 'vel':
-            truth = kwargs['truth'][:,[1]]
-            out = kwargs['truth'].clone()
-            out[:,[1]] = kwargs['out']
-        elif outch_type == 'width':
-            truth = kwargs['truth'][:,[2]]
-            out = kwargs['truth'].clone()
-            out[:,[2]] = kwargs['out']
+        truth = outch_adjuster(out=None, true_out=kwargs['truth'], outch_type=outch_type, action='crop')
+        out = outch_adjuster(out=kwargs['out'], true_out=kwargs['truth'], outch_type=outch_type, action='extend')
         
         loss = 0
         ctr = 0
