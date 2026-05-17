@@ -1,0 +1,57 @@
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "slitless"
+version = "2.0.0"
+description = "Simulation and image reconstruction for slitless spectral imaging"
+readme = "README.md"
+license = {text = "GPL-3.0-only"}
+requires-python = ">=3.10"
+authors = [
+    {name = "Ulas Kamaci", email = "ukamaci2@illinois.edu"}
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Programming Language :: Python :: 3",
+    "Topic :: Scientific/Engineering :: Astronomy",
+]
+dependencies = [
+    "matplotlib",
+    "numpy",
+    "scikit-image",
+    "scipy",
+    "tqdm",
+    "seaborn",
+    "torch",
+    "eispac",
+    "joblib",
+    "pillow",
+    "opencv-python",
+    "denoising-diffusion-pytorch",
+    "ipython-cells",
+    "pqdm",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7",
+    "pytest-cov",
+]
+
+[project.scripts]
+# No entry points yet - these will be added as scripts become library entry points
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["slitless*"]
+
+[tool.setuptools.package-dir]
+"slitless" = "slitless"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-v"
