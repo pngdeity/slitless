@@ -3,10 +3,11 @@ import glob
 import numpy as np
 from tqdm import tqdm
 from slitless.forward import forward_op_tomo_3d
+from slitless.config import config
 
 # --- CONFIGURATION ---
-OUT_DIR = '/home/kamo/resources/slitless/data/eis_data/datasets/dset_v5/data/'
-STATS_OUT_PATH = '/home/kamo/resources/slitless/data/eis_data/datasets/dset_v5/norm_stats.npy'
+OUT_DIR = str(config.data_root / 'eis_data/datasets/dset_v5/data')
+STATS_OUT_PATH = str(config.data_root / 'eis_data/datasets/dset_v5/norm_stats.npy')
 
 DISP_SCALE_A = 0.022275  # Angstroms per pixel
 WAVELENGTH = 195.119     # Angstroms

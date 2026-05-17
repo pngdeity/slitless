@@ -4,19 +4,20 @@ import astropy.units as u
 from astropy.coordinates import SkyCoord
 from astropy.wcs.utils import wcs_to_celestial_frame
 import eispac
+from slitless.config import config
 
 
 if __name__ == '__main__':
     # Read in the fit template and EIS observation
     date = '20070124_181113'
-    pathdir = '/home/kamo/resources/slitless/data/eis_data/'
+    pathdir = str(config.data_root / 'eis_data')
     eispac.db.download_hdf5_data(
         # filename=f'eis_l0_{date}.fits.gz', 
         filename=f'eis_{date}', 
         local_top=pathdir+'l2/'
     )
-    data_filepath = '/home/kamo/resources/slitless/data/eis_data/l2/eis_20070124_181113.data.h5'
-    template_filepath = '/home/kamo/resources/slitless/data/eis_data/templates/fe_12_195_119.2c.template.h5'
+    data_filepath = str(config.data_root / 'eis_data/l2/eis_20070124_181113.data.h5')
+    template_filepath = str(config.data_root / 'eis_data/templates/fe_12_195_119.2c.template.h5')
     tmplt = eispac.read_template(template_filepath)
     data_cube = eispac.read_cube(data_filepath, tmplt.central_wave)
 

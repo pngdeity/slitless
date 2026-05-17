@@ -2,9 +2,10 @@ import numpy as np
 import glob
 import os
 from tqdm import tqdm
+from slitless.config import config
 
-stats_path = '/home/kamo/resources/slitless/data/eis_data/datasets/dset_v5/norm_stats.npy'
-train_dir = '/home/kamo/resources/slitless/data/eis_data/datasets/dset_v5/data/train/'
+stats_path = str(config.data_root / 'eis_data/datasets/dset_v5/norm_stats.npy')
+train_dir = str(config.data_root / 'eis_data/datasets/dset_v5/data/train')
 
 print(f"Loading stats from: {stats_path}")
 saved_stats = np.load(stats_path, allow_pickle=True).item()

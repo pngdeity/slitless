@@ -11,11 +11,12 @@ import eispac, os
 import numpy as np
 from tqdm import tqdm
 from slitless.forward import forward_op_tomo_3d, Source
-from slitless.eistools import (eis_to_ssi_interpolator, 
+from slitless.eistools import (eis_to_ssi_interpolator,
     eis_random_cropper2, fit_spectra_joblib, quickplot, download_eis)
+from slitless.config import config
 
-pathdir = '/home/kamo/resources/slitless/data/eis_data/'
-savedir = '/home/kamo/resources/slitless/data/eis_data/datasets/dset_v4/'
+pathdir = str(config.data_root / 'eis_data')
+savedir = str(config.data_root / 'eis_data/datasets/dset_v4')
 WAVELENGTH = 195.119
 DISP_SCALE = 13.5*1.65/1000
 
@@ -81,7 +82,7 @@ if __name__ == '__main__':
             os.remove(pathdir + f'l2/eis_{date}.head.h5')
 
             # Fit the spectra
-            fit_path = f'/home/kamo/resources/slitless/data/eis_data/fits/eis_{date}.fe_12_195_119.2c-0.fit.h5'
+            fit_path = str(config.data_root / f'eis_data/fits/eis_{date}.fe_12_195_119.2c-0.fit.h5')
         # 3. FIT OR LOAD FIT
             # if os.path.exists(fit_path):
             #     print(f"Loading cached fit for {date}...")

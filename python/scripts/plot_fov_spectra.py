@@ -6,6 +6,7 @@ from astropy.coordinates import SkyCoord
 from astropy.wcs.utils import wcs_to_celestial_frame
 import eispac
 from slitless.eistools import download_eis
+from slitless.config import config
 
 
 def plot_fov_spectra(data_filepath, center_wavelength_nm=19.51, window_width_nm=10.0, 
@@ -149,7 +150,7 @@ def plot_fov_spectra(data_filepath, center_wavelength_nm=19.51, window_width_nm=
 if __name__ == '__main__':
     # Default data file path (same as in eis_fitting.py)
     date = '20070124_181113'
-    data_dir = '/home/kamo/resources/slitless/data/eis_data/l2/'
+    data_dir = str(config.data_root / 'eis_data/l2')
     data_filepath = os.path.join(data_dir, f'eis_{date}.data.h5')
     
     if not os.path.exists(data_filepath):

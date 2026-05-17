@@ -4,10 +4,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
 from tqdm import tqdm
+from slitless.config import config
 
 # --- CONFIG ---
-DATA_DIR = '/home/kamo/resources/slitless/data/eis_data/datasets/dset_v4/data/train/'
-SAVE_DIR = '/home/kamo/resources/slitless/data/eis_data/datasets/dset_v4/analysis/'
+DATA_DIR = str(config.data_root / 'eis_data/datasets/dset_v4/data/train')
+SAVE_DIR = str(config.data_root / 'eis_data/datasets/dset_v4/analysis')
 os.makedirs(SAVE_DIR, exist_ok=True)
 
 # SAMPLE_RATE: Fraction of files to load (0.05 = 5%). 

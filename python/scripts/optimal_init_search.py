@@ -5,6 +5,7 @@ from eispac.core.scale_guess import scale_guess
 from eispac.extern.mpfit import mpfit
 from copy import deepcopy
 import matplotlib.pyplot as plt
+from slitless.config import config
 
 def main():
     datasets = [
@@ -13,7 +14,7 @@ def main():
         'eis_train_1000_dsetv5.npy'
     ]
 
-    template_filepath = '/home/kamo/resources/slitless/data/eis_data/templates/fe_12_195_119.2c.template.h5'
+    template_filepath = str(config.data_root / 'eis_data/templates/fe_12_195_119.2c.template.h5')
     tmplt = eispac.read_template(template_filepath)
     DISP_SCALE_A = 0.022275
     WAVELENGTH_CENTER = 195.119
@@ -22,7 +23,7 @@ def main():
         print(f"\n\n{'='*60}")
         print(f" ANALYZING DATASET: {dset_file}")
         print(f"{'='*60}")
-        data_path = f'/home/kamo/resources/slitless/data/datasets/baseline/{dset_file}'
+        data_path = str(config.data_root / f'datasets/baseline/{dset_file}')
         data = np.load(data_path, allow_pickle=True).item()
         
         cubes = data['datacube']

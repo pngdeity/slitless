@@ -5,9 +5,10 @@ import matplotlib.pyplot as plt
 import optuna.visualization.matplotlib as vis
 from slitless.forward import Imager
 from slitless.recon import scipy_solver_parallel, scipy_solver_parallel2, Reconstructor_Multi
+from slitless.config import config
 
 # 1. Define Data Setup
-path_data = '/home/kamo/resources/slitless/data/datasets/baseline/'
+path_data = str(config.data_root / 'datasets/baseline')
 data_file = 'eis_train_5_dsetv5.npy' 
 
 print(f"Loading {data_file}...")

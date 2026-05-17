@@ -8,6 +8,7 @@ matplotlib.use('Agg') # Prevents GUI crashes when generating hundreds of plots
 import matplotlib.pyplot as plt
 from slitless.forward import Imager
 from slitless.recon import scipy_solver_parallel2, smart2, smart2_twostage, nn_solver, Reconstructor_Multi
+from slitless.config import config
 
 # ==============================================================================
 # 1. RUN CONFIGURATION
@@ -17,7 +18,7 @@ METHOD = 'mart'
 
 # The test dataset to use
 DATA_FILE = 'eis_test_100_dsetv5.npy'
-PATH_DATA = '/home/kamo/resources/slitless/data/datasets/baseline/'
+PATH_DATA = str(config.data_root / 'datasets/baseline')
 
 # The 7 configurations to run: (K, dbsnr). None for dbsnr means Noiseless (gamma=inf).
 CONFIGS = [
@@ -86,7 +87,7 @@ def run_all_configs():
     param4dar = data['param3d']
     meas_key = 'meas_damped' if 'meas_damped' in data else 'meas'
     
-    savepath = '/home/kamo/resources/slitless/python/results/recons/'
+    savepath = str(config.results_root / 'recons')
     now = datetime.datetime.now().strftime('%Y_%m_%d__%H_%M_%S')
     master_savedir = os.path.join(savepath, f'{now}_final_runner_{METHOD.upper()}')
     os.makedirs(master_savedir, exist_ok=True)

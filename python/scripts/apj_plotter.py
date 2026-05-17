@@ -1,19 +1,21 @@
 import pickle
 import matplotlib.pyplot as plt
 import numpy as np
+from pathlib import Path
 import scienceplots  # noqa: F401  — registers 'science' style with matplotlib
 from matplotlib.patches import Patch
 from matplotlib.lines import Line2D
 from slitless.forward import gauss
+from slitless.config import config
 
 plt.style.use(['science', 'no-latex'])
 
-savepath = '/home/kamo/resources/slitless/figures/apj2024_plots/'
+savepath = str(config.data_root.parent / 'figures/apj2024_plots')
 SPEED_OF_LIGHT = 299792.458
 
 def get_recon_comp_figures_final(idx_im=13, config='K_3_dbsnr_10', save=False):
     SPEED_OF_LIGHT = 299792.458
-    base = '/home/kamo/resources/slitless/python/results/recons/'
+    base = str(config.results_root / 'recons')
 
     # Translate K_X_dbsnr_Y -> actual folder name (K_X_poisson_dbsnr_Y or K_X_None_dbsnr_None)
     K_str    = config[2 : config.index('_dbsnr_')]
@@ -71,7 +73,7 @@ def get_recon_comp_figures_final(idx_im=13, config='K_3_dbsnr_10', save=False):
     return fig
 
 def loaderr(x='rec_d_10'):
-    file = f'/home/kamo/resources/slitless/python/scripts/basp25figs/{x}.pickle'
+    file = str(Path(__file__).parent / f'basp25figs/{x}.pickle')
     return np.load(file, allow_pickle=True)
 
 def fig2(save=False):
@@ -188,7 +190,7 @@ def fig3(save=False):
 
 
 def get_spectral_comp_figure(idx_im=4, config='K_3_dbsnr_None', pixel=None, save=False):
-    base = '/home/kamo/resources/slitless/python/results/recons/'
+    base = str(config.results_root / 'recons')
 
     K_str     = config[2 : config.index('_dbsnr_')]
     dbsnr_str = config[config.index('_dbsnr_') + 7:]
@@ -283,7 +285,7 @@ def get_spectral_comp_figure(idx_im=4, config='K_3_dbsnr_None', pixel=None, save
 def get_combined_figure(idx_im=4, config='K_3_dbsnr_None', pixel=None, save=False):
     from matplotlib.gridspec import GridSpec
 
-    base = '/home/kamo/resources/slitless/python/results/recons/'
+    base = str(config.results_root / 'recons')
     K_str     = config[2 : config.index('_dbsnr_')]
     dbsnr_str = config[config.index('_dbsnr_') + 7:]
     noise_seg = 'None' if dbsnr_str == 'None' else 'poisson'
@@ -488,7 +490,7 @@ def get_bar_chart_figure(save=False):
 
 
 if __name__ == '__main__':
-    savepath = '/home/kamo/resources/slitless/figures/apj26_post_revision/'
+    savepath = str(config.data_root.parent / 'figures/apj26_post_revision')
     get_recon_comp_figures_final(idx_im=4, config='K_3_dbsnr_None', save=True)
     # get_combined_figure(idx_im=4, config='K_3_dbsnr_None', pixel=(36, 59), save=True)
     get_bar_chart_figure(save=True)

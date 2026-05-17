@@ -10,10 +10,11 @@ from tqdm.auto import tqdm
 from torch.utils.data import DataLoader
 from slitless.data_loader import param_inv_transform
 from slitless.eistools import meas_boundary_corrector
+from slitless.config import config
 import matplotlib
 # matplotlib.use('Agg')
 
-path_data = '/home/kamo/resources/slitless/data/datasets/baseline/'
+path_data = str(config.data_root / 'datasets/baseline')
 # data='apj19_20x20.npy' # 20x20 APJ2019 image
 # data='eis_5_64x64.npy' # 64x64 EIS images
 # data='diff_samples.npy' # 5 of 64x64 Diffusion generated images
@@ -42,7 +43,7 @@ source_pix = False
 intenscaling = False
 # meas4dar=None
 
-savepath = '/home/kamo/resources/slitless/python/results/recons/'
+savepath = str(config.results_root / 'recons')
 save = False
 M = param4dar.shape[-1]
 numdetectors = 3
@@ -270,8 +271,8 @@ if save==True:
         pickle.dump(Rec, file)
 
 # from slitless.recon import comparison_test_multi
-# path_data = '/home/kamo/resources/slitless/data/datasets/baseline/'
+# path_data = str(config.data_root / 'datasets/baseline')
 # data = 'eis_train_5_64x64.npy' # 5 of 64x64 EIS dataset train images
-# savepath = '/home/kamo/resources/slitless/python/results/recons/'
+# savepath = str(config.results_root / 'recons')
 # Rec_result = comparison_test_multi(path_data, data, savepath, single_param4dar=True, save=False, numdetectors=3, dbsnr=50, 
 #                           noise_model='poisson', solver='diffusion', model_path='model-10.pt', grad_scale=[1,1,1], num_samples=10

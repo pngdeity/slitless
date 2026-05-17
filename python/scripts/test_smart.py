@@ -1,8 +1,9 @@
 import numpy as np
 from slitless.forward import Imager, datacube_generator
 from slitless.recon import smart2
+from slitless.config import config
 
-path_data = '/home/kamo/resources/slitless/data/datasets/baseline/'
+path_data = str(config.data_root / 'datasets/baseline')
 data = np.load(path_data + 'eis_train_50_dsetv5.npy', allow_pickle=True).item()
 
 DISP = 0.022275; C = 299792.458; RW = 195.117937907451; L = 21

@@ -10,11 +10,12 @@ import eispac, os
 import numpy as np
 from tqdm import tqdm
 from slitless.forward import forward_op_tomo_3d
-from slitless.eistools import (eis_to_ssi_interpolator, 
+from slitless.eistools import (eis_to_ssi_interpolator,
     fit_spectra_joblib, download_eis)
+from slitless.config import config
 
-pathdir = '/home/kamo/resources/slitless/data/eis_data/'
-savedir = '/home/kamo/resources/slitless/data/eis_data/datasets/full_fov/'
+pathdir = str(config.data_root / 'eis_data')
+savedir = str(config.data_root / 'eis_data/datasets/full_fov')
 
 # Ensure output directories exist
 os.makedirs(os.path.join(savedir, 'data'), exist_ok=True)

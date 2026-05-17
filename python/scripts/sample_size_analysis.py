@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import glob
 import os
 from tqdm import tqdm
+from slitless.config import config
 
 def plot_theoretical_margin_of_error():
     # Physical Constants
@@ -40,7 +41,7 @@ def plot_theoretical_margin_of_error():
     print("Saved 'theoretical_sample_size.png'")
 
 def plot_empirical_convergence():
-    train_dir = '/home/kamo/resources/slitless/data/eis_data/datasets/dset_v5/data/train/'
+    train_dir = str(config.data_root / 'eis_data/datasets/dset_v5/data/train')
     files = glob.glob(os.path.join(train_dir, '*.npy'))
     
     # Load a pool of up to 1000 patches to test convergence

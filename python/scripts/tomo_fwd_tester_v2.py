@@ -10,8 +10,9 @@ from scipy.optimize import minimize
 from tqdm.auto import tqdm
 from torch.utils.data import DataLoader
 from slitless.data_loader import BasicDataset
+from slitless.config import config
 
-path_data = '/home/kamo/resources/slitless/data/datasets/baseline/'
+path_data = str(config.data_root / 'datasets/baseline')
 data = 'eis_5_64x64.npy' # 64x64 EIS images
 
 param3dar = np.load(path_data+data)[1]

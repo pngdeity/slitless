@@ -2,13 +2,14 @@ import os
 import glob
 import numpy as np
 from slitless.forward import forward_op_tomo_3d
+from slitless.config import config
 
 def generate_consolidated_set(num_patches=50, split='train', output_filename=None):
     if output_filename is None:
         output_filename = f'eis_{split}_{num_patches}_dsetv5.npy'
         
-    split_dir = f'/home/kamo/resources/slitless/data/eis_data/datasets/dset_v5/data/{split}/'
-    out_dir = '/home/kamo/resources/slitless/data/datasets/baseline/'
+    split_dir = str(config.data_root / f'eis_data/datasets/dset_v5/data/{split}')
+    out_dir = str(config.data_root / 'datasets/baseline')
     os.makedirs(out_dir, exist_ok=True)
     out_path = os.path.join(out_dir, output_filename)
     

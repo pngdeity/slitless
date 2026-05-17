@@ -4,6 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import eispac
 from slitless.recon import gauss_pmf_fitter, smart_fit_spectra_joblib
+from slitless.config import config
 
 # Constants for EIS / SMART unit conversions
 DISP_SCALE_A = 0.022275  # Angstroms per pixel
@@ -186,9 +187,9 @@ def plot_spectrum_fit(ax, wave, spectrum, wave_dense, combined, components, back
 
 
 def main():
-    path_data = '/home/kamo/resources/slitless/data/datasets/baseline/'
+    path_data = str(config.data_root / 'datasets/baseline')
     data_file = 'eis_train_5_dsetv5.npy'
-    path_templates = '/home/kamo/resources/slitless/data/eis_data/templates/'
+    path_templates = str(config.data_root / 'eis_data/templates')
 
     print(f"Loading dataset: {data_file}...")
     data = np.load(os.path.join(path_data, data_file), allow_pickle=True).item()

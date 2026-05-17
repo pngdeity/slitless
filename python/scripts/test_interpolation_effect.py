@@ -8,6 +8,7 @@ from astropy.wcs.utils import wcs_to_celestial_frame
 
 from slitless.eistools import download_eis, fit_spectra_joblib, eis_to_ssi_interpolator
 from slitless.recon import smart_fit_spectra_joblib
+from slitless.config import config
 
 # Constants
 DISP_SCALE_A = 0.022275  
@@ -21,7 +22,7 @@ def get_metrics(true, est):
 
 def main():
     date = '20070124_181113'
-    pathdir = '/home/kamo/resources/slitless/data/eis_data/'
+    pathdir = str(config.data_root / 'eis_data')
     eis_filepath = os.path.join(pathdir, f'l2/eis_{date}.data.h5')
     template_filepath = os.path.join(pathdir, 'templates/fe_12_195_119.2c.template.h5')
 

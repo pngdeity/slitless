@@ -2,13 +2,14 @@ import numpy as np
 import glob, os
 from torch.utils.data import Dataset, DataLoader
 from slitless.data_loader import BasicDataset
+from slitless.config import config
 import shutil
 from sklearn.model_selection import train_test_split
 from tqdm import tqdm
 
 # --- CONFIGURATION ---
-base_dir = '/home/kamo/resources/slitless/data/eis_data/datasets/dset_v4/data/'
-train_dir = '/home/kamo/resources/slitless/data/eis_data/datasets/dset_v4/data/train/'
+base_dir = str(config.data_root / 'eis_data/datasets/dset_v4/data')
+train_dir = str(config.data_root / 'eis_data/datasets/dset_v4/data/train')
 
 def stat_calculator():
     trainset = BasicDataset(base_dir)
@@ -35,7 +36,7 @@ def stat_calculator():
 
     print("\n--- ROBUST STATS ---")
     print(stats)
-    np.save('/home/kamo/resources/slitless/data/eis_data/datasets/dset_v4/norm_stats.npy', stats)
+    np.save(str(config.data_root / 'eis_data/datasets/dset_v4/norm_stats.npy'), stats)
 
 def train_test_generator(base_dir=base_dir):
     # Destination folders (Must exist, or script will create them)
