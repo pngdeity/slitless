@@ -85,6 +85,9 @@ def load_model_stats(model_path):
     if not matches:
         raise ValueError(f"'Dataset Path' not found in {summary_path}")
     dataset_path = matches[0].split('= ')[-1].strip()
+    if not os.path.isabs(dataset_path):
+        scripts_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'scripts')
+        dataset_path = os.path.join(scripts_dir, dataset_path)
     stats_path = os.path.normpath(os.path.join(dataset_path, '..', 'norm_stats.npy'))
     return np.load(stats_path, allow_pickle=True).item()
 
